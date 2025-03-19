@@ -1,6 +1,4 @@
-#include <cstdlib>
 #include <iostream>
-#include <ctime>
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -160,6 +158,8 @@ int main(){
         vector<vector<double> > data = parseFile(file);
         vector<double> current_set_of_features(0);
         vector<double> all_features(0);
+        cout << "This dataset has " << data[0].size()-1 << " features (not including the class attribute), with " << data.size() << " instances." << endl;
+        cout << "Running nearest neighbor with no features, using \"leaving-one-out\" evaluation, I get an accuracy of " << leave_one_out_cross_validation(data, all_features, -1)*100.0 << "%" << endl << endl;
         for(int i = 1; i <= data[0].size()-1; i++){
             all_features.push_back(i);
         }
@@ -204,17 +204,19 @@ int main(){
         }
         cout << "}, which has an accuracy of " << fixed << setprecision(1) << overall_best_accuracy*100 << "%" << endl;
     }
+
     else if(algorithmType == 2){                  //backward selection
         vector<vector<double> > data = parseFile(file);
         vector<double> current_set_of_features;
         vector<double> best_subset;
         double overall_best_accuracy = 0.0;
         vector<double> all_features(0);
+        cout << "Running nearest neighbor with no features, using \"leaving-one-out\" evaluation, I get an accuracy of " << leave_one_out_backward(data, all_features, -1)*100.0 << "%" << endl << endl;
         for(int i = 1; i <= data[0].size()-1; i++){
             all_features.push_back(i);
         }
         cout << "This dataset has " << data[0].size()-1 << " features (not including the class attribute), with " << data.size() << " instances." << endl;
-        cout << "Running nearest neighbor with all " << data[0].size()-1 << " features, using \"leaving-one-out\" evaluation, I get an accuracy of " << leave_one_out_cross_validation(data, all_features, -1)*100.0 << "%" << endl << endl;
+        cout << "Running nearest neighbor with all " << data[0].size()-1 << " features, using \"leaving-one-out\" evaluation, I get an accuracy of " << leave_one_out_backward(data, all_features, -1)*100.0 << "%" << endl << endl;
         // Initialize with all features (1-based)
         for (int i = 1; i <= data[0].size() - 1; i++) {
             current_set_of_features.push_back(i);
@@ -266,13 +268,12 @@ int main(){
                 cout << static_cast<int>(feature_to_remove) << "} was best, accuracy is " << best_so_far_accuracy*100 << "%" << endl;
             }
         }
-
         cout << "Finished search! Best feature subset: {";
-        for (size_t i = 0; i < best_subset.size(); ++i) {
+        for (int i = 0; i < best_subset.size(); ++i) {
             cout << static_cast<int>(best_subset[i]);
             if (i != best_subset.size() - 1) cout << ",";
         }
-        cout << "}, which has an accuracy of " << fixed << setprecision(1) << overall_best_accuracy * 100 << "%\n";
+        cout << "}, which has an accuracy of " << fixed << setprecision(1) << overall_best_accuracy * 100.0 << "%\n";
     }
     return 0;
 }
