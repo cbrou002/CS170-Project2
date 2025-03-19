@@ -131,7 +131,7 @@ double leave_one_out_backward(vector<vector<double> > data, vector<double> curre
     }
 
     double accuracy = static_cast<double>(number_correctly_classified) / data.size();
-    if(feature_to_remove != -1){
+    if(feature_to_remove != -1 && feature_to_remove != 0){
         cout << "   Using feature(s) {";
         for (size_t i = 0; i < temp_features.size(); ++i) {
             cout << static_cast<int>(temp_features[i]);
@@ -144,7 +144,7 @@ double leave_one_out_backward(vector<vector<double> > data, vector<double> curre
 }
 
 int main(){
-    cout << "Welcome to Corey Broussard's Feature Selection Algorithm." << endl;
+    cout << "Welcome to Corey Broussard's Feature Selection Algorithm." << endl << endl;
     cout << "Type in the name of the file to test : ";
     srand(time(0));
     string file;
@@ -263,9 +263,7 @@ int main(){
                     cout << static_cast<int>(current_set_of_features[i]);
                     cout << ",";
                 }
-                cout << feature_to_remove << "} was best, accuracy is " << best_so_far_accuracy*100 << "%" << endl;
-                //cout << "Removed feature " << feature_to_remove 
-                //    << ". New accuracy: " << best_so_far_accuracy * 100 << "%\n\n";
+                cout << static_cast<int>(feature_to_remove) << "} was best, accuracy is " << best_so_far_accuracy*100 << "%" << endl;
             }
         }
 
@@ -274,7 +272,7 @@ int main(){
             cout << static_cast<int>(best_subset[i]);
             if (i != best_subset.size() - 1) cout << ",";
         }
-        cout << "}, whcih has an accuracy of " << fixed << setprecision(1) << overall_best_accuracy * 100 << "%\n";
+        cout << "}, which has an accuracy of " << fixed << setprecision(1) << overall_best_accuracy * 100 << "%\n";
     }
     return 0;
 }
