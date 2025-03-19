@@ -78,7 +78,7 @@ double leave_one_out_cross_validation(vector<vector<double> > data, vector<doubl
         }
     }
     if(feature_to_add != -1){
-        cout << "   Using feature(s) {";
+        cout << "\tUsing feature(s) {";
         for(int i = 0; i < current_set.size(); i++){
             if(i != current_set.size()){
                 cout << static_cast<int>(current_set[i]) << ",";
@@ -130,7 +130,7 @@ double leave_one_out_backward(vector<vector<double> > data, vector<double> curre
 
     double accuracy = static_cast<double>(number_correctly_classified) / data.size();
     if(feature_to_remove != -1 && feature_to_remove != 0){
-        cout << "   Using feature(s) {";
+        cout << "\tUsing feature(s) {";
         for (size_t i = 0; i < temp_features.size(); ++i) {
             cout << static_cast<int>(temp_features[i]);
             if (i != temp_features.size() - 1) cout << ",";
@@ -147,7 +147,7 @@ int main(){
     srand(time(0));
     string file;
     cin >> file;
-    cout << endl << "Type the number of the algorithm you want to run." << endl << "\t1) Forward Selection\n" << "\t2) Backward Eimination\n";
+    cout << endl << "Type the number of the algorithm you want to run." << endl << "\t1) Forward Selection\n" << "\t2) Backward Elimination\n";
     int algorithmType;
     cin >> algorithmType;
     cout << endl;
@@ -158,8 +158,7 @@ int main(){
         vector<vector<double> > data = parseFile(file);
         vector<double> current_set_of_features(0);
         vector<double> all_features(0);
-        cout << "This dataset has " << data[0].size()-1 << " features (not including the class attribute), with " << data.size() << " instances." << endl;
-        cout << "Running nearest neighbor with no features, using \"leaving-one-out\" evaluation, I get an accuracy of " << leave_one_out_cross_validation(data, all_features, -1)*100.0 << "%" << endl << endl;
+        //cout << "Running nearest neighbor with no features, using \"leaving-one-out\" evaluation, I get an accuracy of " << leave_one_out_cross_validation(data, all_features, -1)*100.0 << "%" << endl << endl;
         for(int i = 1; i <= data[0].size()-1; i++){
             all_features.push_back(i);
         }
@@ -182,12 +181,15 @@ int main(){
                 }
             }
             if(feature_to_add_at_this_level != 0){
-                cout << "Feature set {";
-                for(int i = 0; i < current_set_of_features.size(); i++){
-                    cout << static_cast<int>(current_set_of_features[i]);
-                    cout << ",";
+                if(current_set_of_features.size() < data[0].size() - 2){//dont print "Feature set" if there is only one feature
+                    cout << "Feature set {";
+                    for(int i = 0; i < current_set_of_features.size(); i++){
+                        cout << static_cast<int>(current_set_of_features[i]);
+                        cout << ",";
+                    }
+                    cout << static_cast<int>(feature_to_add_at_this_level) << "} was best, accuracy is " << best_so_far_accuracy*100 << "%" << endl;
                 }
-                cout << static_cast<int>(feature_to_add_at_this_level) << "} was best, accuracy is " << best_so_far_accuracy*100 << "%" << endl;
+                
                 current_set_of_features.push_back(feature_to_add_at_this_level);
                 if (best_so_far_accuracy > overall_best_accuracy) {
                     overall_best_accuracy = best_so_far_accuracy;
@@ -195,7 +197,7 @@ int main(){
                 }
             }
         }
-        cout << "Finished Search!! The best feature subset is {";
+        cout << "Finished search!! The best feature subset is {";
         for(int i = 0; i < best_subset.size(); i++){
             cout << static_cast<int>(best_subset[i]);
             if (i != best_subset.size() - 1) {
@@ -211,7 +213,7 @@ int main(){
         vector<double> best_subset;
         double overall_best_accuracy = 0.0;
         vector<double> all_features(0);
-        cout << "Running nearest neighbor with no features, using \"leaving-one-out\" evaluation, I get an accuracy of " << leave_one_out_backward(data, all_features, -1)*100.0 << "%" << endl << endl;
+        //cout << "Running nearest neighbor with no features, using \"leaving-one-out\" evaluation, I get an accuracy of " << leave_one_out_backward(data, all_features, -1)*100.0 << "%" << endl << endl;
         for(int i = 1; i <= data[0].size()-1; i++){
             all_features.push_back(i);
         }
@@ -258,14 +260,15 @@ int main(){
                 if (best_so_far_accuracy > overall_best_accuracy) {
                     overall_best_accuracy = best_so_far_accuracy;
                     best_subset = current_set_of_features;
-
                 }
                 cout << "Feature set {";
                 for(int i = 0; i < current_set_of_features.size(); i++){
                     cout << static_cast<int>(current_set_of_features[i]);
-                    cout << ",";
+                    if(i != current_set_of_features.size()-1){
+                        cout << ",";
+                    }
                 }
-                cout << static_cast<int>(feature_to_remove) << "} was best, accuracy is " << best_so_far_accuracy*100 << "%" << endl;
+                cout << "} was best, accuracy is " << best_so_far_accuracy*100 << "%" << endl;
             }
         }
         cout << "Finished search! Best feature subset: {";
