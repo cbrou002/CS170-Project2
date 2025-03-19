@@ -7,6 +7,7 @@
 #include <vector>
 #include <algorithm>
 #include <limits>
+#include <iomanip>
 
 using namespace std;
 
@@ -82,15 +83,15 @@ double leave_one_out_cross_validation(vector<vector<double> > data, vector<doubl
         cout << "   Using feature(s) {";
         for(int i = 0; i < current_set.size(); i++){
             if(i != current_set.size()){
-                cout << current_set[i] << ", ";
+                cout << static_cast<int>(current_set[i]) << ",";
             }
             else{
-                cout << current_set[i];
+                cout << static_cast<int>(current_set[i]);
             }
             
         }
         cout << feature_to_add << "}";
-        cout << " accuracy is " << (static_cast<double>(number_correctly_classified) / data.size())*100.0 << "%\n";
+        cout << " accuracy is " << fixed << setprecision(1) << (static_cast<double>(number_correctly_classified) / data.size())*100.0 << "%\n";
     }
     return static_cast<double>(number_correctly_classified) / data.size();
 }
@@ -105,21 +106,22 @@ double leave_one_out_backward(vector<vector<double> > data, vector<double> curre
     for (int i = 0; i < data.size(); ++i) {
         vector<double> object_to_classify(data[i].begin() + 1, data[i].end());
         double label = data[i][0];
-        double min_distance = numeric_limits<double>::infinity();
+        double nearest_neighbor_distance = numeric_limits<double>::infinity();
         int nearest_label = -1;
 
         for (int k = 0; k < data.size(); ++k) {
-            if (k == i) continue; // Skip self
-            vector<double> neighbor(data[k].begin() + 1, data[k].end());
-            double distance = 0.0;
-            // Compute distance using ONLY the retained features
-            for (int f : temp_features) {
-                distance += pow(object_to_classify[f-1] - neighbor[f-1], 2);
-            }
-            distance = sqrt(distance);
-            if (distance < min_distance) {
-                min_distance = distance;
-                nearest_label = data[k][0];
+            if (k != i){; // Skip self
+                vector<double> neighbor(data[k].begin() + 1, data[k].end());
+                double distance = 0.0;
+                // Compute distance using ONLY the retained features
+                for (int f : temp_features) {
+                    distance += pow(object_to_classify[f-1] - neighbor[f-1], 2);
+                }
+                distance = sqrt(distance);
+                if (distance < nearest_neighbor_distance) {
+                    nearest_neighbor_distance = distance;
+                    nearest_label = data[k][0];
+                }
             }
         }
 
@@ -132,10 +134,10 @@ double leave_one_out_backward(vector<vector<double> > data, vector<double> curre
     if(feature_to_remove != -1){
         cout << "   Using feature(s) {";
         for (size_t i = 0; i < temp_features.size(); ++i) {
-            cout << temp_features[i];
-            if (i != temp_features.size() - 1) cout << ", ";
+            cout << static_cast<int>(temp_features[i]);
+            if (i != temp_features.size() - 1) cout << ",";
         }
-        cout << "} accuracy is " << accuracy * 100.0 << "%\n";
+        cout << "} accuracy is " << fixed << setprecision(1) << accuracy * 100.0 << "%\n";
     }
     
     return accuracy;
@@ -165,7 +167,7 @@ int main(){
         double best_so_far_accuracy = 0;//accuracy of the best subset out of the ones seen so far
         double feature_to_add_at_this_level = 0;
         cout << "This dataset has " << data[0].size()-1 << " features (not including the class attribute), with " << data.size() << " instances." << endl;
-        cout << "Running nearest neighbor with all " << data[0].size()-1 << " features, using \"leaving-one-out\" evaluation, I get an accuracy of " << leave_one_out_cross_validation(data, all_features, -1)*100 << "%" << endl << endl;
+        cout << "Running nearest neighbor with all " << data[0].size()-1 << " features, using \"leaving-one-out\" evaluation, I get an accuracy of " << leave_one_out_cross_validation(data, all_features, -1)*100.0 << "%" << endl << endl;
         cout << "Beginning search." << endl;
         for(int i = 1; i <= data[0].size()-1; i++){
             best_so_far_accuracy = 0;
@@ -182,10 +184,10 @@ int main(){
             if(feature_to_add_at_this_level != 0){
                 cout << "Feature set {";
                 for(int i = 0; i < current_set_of_features.size(); i++){
-                    cout << current_set_of_features[i];
-                    cout << ", ";
+                    cout << static_cast<int>(current_set_of_features[i]);
+                    cout << ",";
                 }
-                cout << feature_to_add_at_this_level << "} was best, accuracy is " << best_so_far_accuracy*100 << "%" << endl;
+                cout << static_cast<int>(feature_to_add_at_this_level) << "} was best, accuracy is " << best_so_far_accuracy*100 << "%" << endl;
                 current_set_of_features.push_back(feature_to_add_at_this_level);
                 if (best_so_far_accuracy > overall_best_accuracy) {
                     overall_best_accuracy = best_so_far_accuracy;
@@ -195,12 +197,12 @@ int main(){
         }
         cout << "Finished Search!! The best feature subset is {";
         for(int i = 0; i < best_subset.size(); i++){
-            cout << best_subset[i];
+            cout << static_cast<int>(best_subset[i]);
             if (i != best_subset.size() - 1) {
-                cout << ", ";
+                cout << ",";
             }
         }
-        cout << "}, which has an accuracy of " << overall_best_accuracy*100 << "%" << endl;
+        cout << "}, which has an accuracy of " << fixed << setprecision(1) << overall_best_accuracy*100 << "%" << endl;
     }
     else if(algorithmType == 2){                  //backward selection
         vector<vector<double> > data = parseFile(file);
@@ -212,7 +214,7 @@ int main(){
             all_features.push_back(i);
         }
         cout << "This dataset has " << data[0].size()-1 << " features (not including the class attribute), with " << data.size() << " instances." << endl;
-        cout << "Running nearest neighbor with all " << data[0].size()-1 << " features, using \"leaving-one-out\" backward elimination, I get an accuracy of " << leave_one_out_cross_validation(data, all_features, -1)*100 << "%" << endl << endl;
+        cout << "Running nearest neighbor with all " << data[0].size()-1 << " features, using \"leaving-one-out\" evaluation, I get an accuracy of " << leave_one_out_cross_validation(data, all_features, -1)*100.0 << "%" << endl << endl;
         // Initialize with all features (1-based)
         for (int i = 1; i <= data[0].size() - 1; i++) {
             current_set_of_features.push_back(i);
@@ -256,17 +258,23 @@ int main(){
                     best_subset = current_set_of_features;
 
                 }
-                cout << "Removed feature " << feature_to_remove 
-                    << ". New accuracy: " << best_so_far_accuracy * 100 << "%\n\n";
+                cout << "Feature set {";
+                for(int i = 0; i < current_set_of_features.size(); i++){
+                    cout << static_cast<int>(current_set_of_features[i]);
+                    cout << ",";
+                }
+                cout << feature_to_remove << "} was best, accuracy is " << best_so_far_accuracy*100 << "%" << endl;
+                //cout << "Removed feature " << feature_to_remove 
+                //    << ". New accuracy: " << best_so_far_accuracy * 100 << "%\n\n";
             }
         }
 
         cout << "Finished search! Best feature subset: {";
         for (size_t i = 0; i < best_subset.size(); ++i) {
-            cout << best_subset[i];
-            if (i != best_subset.size() - 1) cout << ", ";
+            cout << static_cast<int>(best_subset[i]);
+            if (i != best_subset.size() - 1) cout << ",";
         }
-        cout << "}, accuracy: " << overall_best_accuracy * 100 << "%\n";
+        cout << "}, whcih has an accuracy of " << fixed << setprecision(1) << overall_best_accuracy * 100 << "%\n";
     }
     return 0;
 }
