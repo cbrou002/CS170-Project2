@@ -135,7 +135,7 @@ double leave_one_out_backward(vector<vector<double> > data, vector<double> curre
             cout << temp_features[i];
             if (i != temp_features.size() - 1) cout << ", ";
         }
-        cout << "} accuracy is " << accuracy * 100 << "%\n";
+        cout << "} accuracy is " << accuracy * 100.0 << "%\n";
     }
     
     return accuracy;
