@@ -6,10 +6,11 @@
 #include <algorithm>
 #include <limits>
 #include <iomanip>
+//#include <chrono>
 
 using namespace std;
 
-vector<vector<double> > parseFile(const string& filename) {
+vector<vector<double> > parseFile(const string& filename) {//get input from data files
     ifstream file(filename);
     if (!file.is_open()) {
         cerr << "Error: Could not open the file " << filename << endl;
@@ -77,7 +78,7 @@ double leave_one_out_cross_validation(vector<vector<double> > data, vector<doubl
             number_correctly_classified +=1; 
         }
     }
-    if(feature_to_add != -1){
+    if(feature_to_add != -1){//if adding a valid feature, output features with accuracy
         cout << "\tUsing feature(s) {";
         for(int i = 0; i < current_set.size(); i++){
             if(i != current_set.size()){
@@ -151,6 +152,7 @@ int main(){
     int algorithmType;
     cin >> algorithmType;
     cout << endl;
+    //auto start = chrono::high_resolution_clock::now();
     if(algorithmType == 1){//forward selection
         
         vector<double> best_subset;//best subset seen with the highest accuracy
@@ -256,19 +258,21 @@ int main(){
                     current_set_of_features.end()
                 );
 
-                // Update overall best subset if accuracy improves or stays the same with fewer features
+                // Update overall best subset if accuracy improves
                 if (best_so_far_accuracy > overall_best_accuracy) {
                     overall_best_accuracy = best_so_far_accuracy;
                     best_subset = current_set_of_features;
                 }
-                cout << "Feature set {";
-                for(int i = 0; i < current_set_of_features.size(); i++){
-                    cout << static_cast<int>(current_set_of_features[i]);
-                    if(i != current_set_of_features.size()-1){
-                        cout << ",";
+                if(current_set_of_features.size() != 1){//only print this if it is not the last element left
+                    cout << "Feature set {";
+                    for(int i = 0; i < current_set_of_features.size(); i++){
+                        cout << static_cast<int>(current_set_of_features[i]);
+                        if(i != current_set_of_features.size()-1){
+                            cout << ",";
+                        }
                     }
+                    cout << "} was best, accuracy is " << best_so_far_accuracy*100 << "%" << endl;
                 }
-                cout << "} was best, accuracy is " << best_so_far_accuracy*100 << "%" << endl;
             }
         }
         cout << "Finished search! Best feature subset: {";
@@ -278,5 +282,8 @@ int main(){
         }
         cout << "}, which has an accuracy of " << fixed << setprecision(1) << overall_best_accuracy * 100.0 << "%\n";
     }
+    //auto end = chrono::high_resolution_clock::now();
+    //auto duration = chrono::duration_cast<chrono::milliseconds>(end - start).count();
+    //cout << "Execution time: " << duration << " ms" << endl;
     return 0;
 }
